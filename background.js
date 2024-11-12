@@ -1,47 +1,52 @@
+const OPENAI_API_KEY = "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";
+
+// Conversation history to maintain context
+let conversationHistory = [];
+
 // Listen for messages from popup.js
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.type === "summarize") {
-      // Call the summarizeContent function and handle the response
-      (async () => {
-        try {
-          const summary = await summarizeContent(request.content);
-          sendResponse({ summary });
-        } catch (error) {
-          sendResponse({ error: "Failed to summarize content\n\n" + error.message });
-        }
-      })();
-  
-      // Return true to indicate that we'll respond asynchronously
-      return true;
-    }
-  });
+  const { type, content, question } = request;
 
-// Function to send content to the GPT API and get a summary
-async function summarizeContent(content) {
-  const apiUrl = "https://api.openai.com/v1/chat/completions";
-  
-  const response = await fetch(apiUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer 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`,
-    },
-    body: JSON.stringify({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "user",
-          content: "Summarize: " + content
-        }
-      ],
-      temperature: 0.5,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch summary from GPT API\n\n" + response.statusText);
+  if (type === "summarize") {
+    handleGPTRequest([{ role: "user", content: "Summarize: " + content }], sendResponse);
+  } else if (type === "ask") {
+    if(conversationHistory.length == 0) conversationHistory.push({ role: "user", content: 'Answer using: ' + content });
+    conversationHistory.push({ role: "user", content: question });
+    handleGPTRequest(conversationHistory, sendResponse);
+  } else if (type === "clear") {
+    conversationHistory = [];
+    sendResponse({ success: true });
   }
+  return true;
+});
 
-  const data = await response.json();
-  return data.choices[0].message.content;
+// Helper function to send the conversation to GPT API
+async function handleGPTRequest(messages, sendResponse) {
+  try {
+    const apiUrl = "https://api.openai.com/v1/chat/completions";
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o",
+        messages: messages,
+        max_tokens: 150,
+        temperature: 0.5,
+      }),
+    });
+
+    const data = await response.json();
+    const answer = data.choices[0].message.content.trim();
+
+    // Save the response to conversation history
+    conversationHistory.push({ role: "assistant", content: answer });
+
+    sendResponse({ answer });
+  } catch (error) {
+    console.error("Error with GPT request:", error);
+    sendResponse({ error: "Failed to fetch response from GPT" });
+  }
 }

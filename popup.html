@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Webpage Summarizer</title>
+  <title>Webpage Summarizer & Q&A</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap">
   <style>
+    /* Styling remains the same */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -29,8 +30,8 @@
       margin-bottom: 20px;
     }
     .button {
-      padding: 12px 24px;
-      font-size: 16px;
+      padding: 10px 20px;
+      font-size: 14px;
       font-weight: 500;
       color: #fff;
       background-color: #4a90e2;
@@ -38,15 +39,15 @@
       border-radius: 5px;
       cursor: pointer;
       transition: background-color 0.3s;
-      margin-bottom: 15px;
+      margin-top: 10px;
     }
     .button:hover {
       background-color: #357ABD;
     }
     #summary {
       width: 100%;
-      height: 220px;
-      padding: 15px;
+      height: 180px;
+      padding: 10px;
       font-size: 14px;
       background-color: #ffffff;
       border: 1px solid #ddd;
@@ -54,7 +55,15 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       overflow-y: auto;
       white-space: pre-wrap;
-      text-align: left;
+      margin-top: 10px;
+    }
+    #questionInput {
+      width: 100%;
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-bottom: 10px;
     }
     .loading {
       border: 4px solid #f3f3f3;
@@ -72,9 +81,12 @@
   </style>
 </head>
 <body>
-  <h2>Webpage Summarizer</h2>
+  <h2>Webpage Summarizer & Q&A</h2>
   <button id="summarizeButton" class="button">Summarize Page</button>
-  <div id="summary">Summary will appear here...</div>
+  <input type="text" id="questionInput" placeholder="Ask a question..." />
+  <button id="askButton" class="button">Ask Question</button>
+  <button id="clearButton" class="button" style="background-color: #d9534f;">Clear Conversation</button>
+  <div id="summary">Summary or answer will appear here...</div>
   <div id="loadingSpinner" class="loading" style="display: none;"></div>
 
   <script src="config.js"></script>

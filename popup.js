@@ -1,53 +1,58 @@
-// Wait for the DOM to load
 document.addEventListener("DOMContentLoaded", () => {
   const summarizeButton = document.getElementById("summarizeButton");
+  const askButton = document.getElementById("askButton");
+  const clearButton = document.getElementById("clearButton");
+  const questionInput = document.getElementById("questionInput");
   const summaryDisplay = document.getElementById("summary");
   const loadingSpinner = document.getElementById("loadingSpinner");
 
-  // Add click event listener to the "Summarize Page" button
-  summarizeButton.addEventListener("click", async () => {
-    // Clear previous summary and show loading spinner
+  async function handleRequest(type, question = "") {
     summaryDisplay.textContent = "";
     loadingSpinner.style.display = "block";
 
     try {
-      // Query the current active tab
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-      // Inject content.js into the current tab to extract webpage content
       const [result] = await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         func: extractPageContent
       });
 
-      // Send extracted content to the background script for summarization
-      const summary = await requestSummary(result.result);
-
-      // Display the summary in the popup
-      summaryDisplay.textContent = summary;
+      const response = await requestGPT(result.result, type, question);
+      summaryDisplay.textContent = response;
     } catch (error) {
-      console.error("Error summarizing page:", error);
+      console.error("Error:", error);
       summaryDisplay.textContent = "An error occurred. Please try again.";
     } finally {
-      // Hide loading spinner
       loadingSpinner.style.display = "none";
     }
+  }
+
+  summarizeButton.addEventListener("click", () => handleRequest("summarize"));
+  askButton.addEventListener("click", () => {
+    const question = questionInput.value.trim();
+    if (question) handleRequest("ask", question);
+    else summaryDisplay.textContent = "Please enter a question.";
+  });
+
+  // Clear conversation history
+  clearButton.addEventListener("click", () => {
+    chrome.runtime.sendMessage({ type: "clear" });
+    summaryDisplay.textContent = "Conversation cleared.";
   });
 });
 
-// Function to extract text content from the webpage
 function extractPageContent() {
   return document.body.innerText;
 }
 
-// Function to send the content to the background script and get a summary
-async function requestSummary(content) {
+async function requestGPT(content, type, question = "") {
   return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage({ type: "summarize", content }, (response) => {
+    chrome.runtime.sendMessage({ type, content, question }, (response) => {
       if (chrome.runtime.lastError || !response || response.error) {
         reject(chrome.runtime.lastError || response.error);
       } else {
-        resolve(response.summary);
+        resolve(response.answer || response.summary);
       }
     });
   });
