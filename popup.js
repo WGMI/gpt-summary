@@ -2,11 +2,13 @@
 document.addEventListener("DOMContentLoaded", () => {
   const summarizeButton = document.getElementById("summarizeButton");
   const summaryDisplay = document.getElementById("summary");
+  const loadingSpinner = document.getElementById("loadingSpinner");
 
   // Add click event listener to the "Summarize Page" button
   summarizeButton.addEventListener("click", async () => {
-    // Clear previous summary
-    summaryDisplay.textContent = "Loading summary...";
+    // Clear previous summary and show loading spinner
+    summaryDisplay.textContent = "";
+    loadingSpinner.style.display = "block";
 
     try {
       // Query the current active tab
@@ -25,7 +27,10 @@ document.addEventListener("DOMContentLoaded", () => {
       summaryDisplay.textContent = summary;
     } catch (error) {
       console.error("Error summarizing page:", error);
-      summaryDisplay.textContent = "An error occurred. Please try again.\n\n" + error;  
+      summaryDisplay.textContent = "An error occurred. Please try again.";
+    } finally {
+      // Hide loading spinner
+      loadingSpinner.style.display = "none";
     }
   });
 });

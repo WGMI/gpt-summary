@@ -1,5 +1,3 @@
-// OpenAI API key (ensure this is securely stored, not hardcoded for production)
-
 // Listen for messages from popup.js
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type === "summarize") {
@@ -9,7 +7,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           const summary = await summarizeContent(request.content);
           sendResponse({ summary });
         } catch (error) {
-          sendResponse({ error: "Failed to summarize content" });
+          sendResponse({ error: "Failed to summarize content\n\n" + error.message });
         }
       })();
   
@@ -26,7 +24,7 @@ async function summarizeContent(content) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${}`,
+      "Authorization": `Bearer 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`,
     },
     body: JSON.stringify({
       model: "gpt-4o",
@@ -41,7 +39,7 @@ async function summarizeContent(content) {
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch summary from GPT API");
+    throw new Error("Failed to fetch summary from GPT API\n\n" + response.statusText);
   }
 
   const data = await response.json();
