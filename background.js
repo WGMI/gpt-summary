@@ -1,4 +1,4 @@
-const OPENAI_API_KEY = "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";
+const OPENAI_API_KEY = ""
 
 // Conversation history to maintain context
 let conversationHistory = [];
