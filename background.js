@@ -26,7 +26,7 @@ async function summarizeContent(content) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${OPENAI_API_KEY}`,
+      "Authorization": `Bearer ${}`,
     },
     body: JSON.stringify({
       model: "gpt-4o",
