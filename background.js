@@ -1,5 +1,4 @@
 // OpenAI API key (ensure this is securely stored, not hardcoded for production)
-const OPENAI_API_KEY = "Key-goes-here";
 
 // Listen for messages from popup.js
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
